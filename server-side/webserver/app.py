@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_httpauth import HTTPBasicAuth
+
 from passlib.apps import custom_app_context as pwd_context
 import json
 
@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 with open('config.json', 'r') as f:
     config = json.load(f)["DEFAULT"]
+
 
 engine_uri = "mysql://%s:%s@%s/%s" % (config["USERNAME"], config["PASSWORD"], config["HOST"], config["DBNAME"])
 # engine = create_engine(engine_uri, pool_recycle=3600)
