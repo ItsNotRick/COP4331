@@ -1,4 +1,5 @@
 flask
-sqlalchemy
+flask_sqlalchemy
 psycopg2
 madmom
+passlib
