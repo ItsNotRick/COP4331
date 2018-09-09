@@ -1,4 +1,5 @@
 flask
+cython
 flask_sqlalchemy
 psycopg2
 madmom
