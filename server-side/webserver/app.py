@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from passlib.apps import custom_app_context as pwd_context
 import json
 
-# // "SETUP_COMMAND" : "CREATE TABLE Users(id INT AUTO_INCREMENT PRIMARY username VARCHAR(80) NOT NULL, pwd_hash VARCHAR(80) NOT NULL, UNIQUE KEY unique_username (username));"         
+# // "SETUP_COMMAND" : "CREATE TABLE Users(id INT AUTO_INCREMENT, username VARCHAR(80) NOT NULL, pwd_hash VARCHAR(80) NOT NULL, UNIQUE KEY unique_username (username), PRIMARY KEY (id));"         
 
 app = Flask(__name__)
 
