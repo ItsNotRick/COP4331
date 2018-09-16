@@ -1,9 +1,18 @@
 # COP4331
 Main repository for Processes for Object Oriented Software Development project
+## Sprint #1 Results Graders Look Here
+1. **Vision Statement** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/vision.md
+2. **User Stories** https://github.com/ItsNotRick/COP4331/issues
+3. **Product Backlog** https://github.com/ItsNotRick/COP4331/issues
+4. **Sprint Backlog** https://github.com/ItsNotRick/COP4331/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Sprint+%231%22
+5. **Burndown Chart** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/Sprint1BurnDown.xlsx
+6. **Design Documents** drop that link here @Chris
+7. **Code** Code: https://github.com/ItsNotRick/COP4331/tree/develop/client-side \
+Build/Run Instructions: drop that link here @Yash
+# Everything below was made early on and needs to be looked at
 ## Project Outline
 For now the focus will be on a phone app, using an arduino or ARM dev board is
 also an option if we decide that we need greater control over the microphone.
-
 ### Minimum Viable Product:
 Rhythm game with a few built in beatmaps running on a phone or an arduino / ARM dev board.
 <table>
