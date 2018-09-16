@@ -7,8 +7,11 @@ Main repository for Processes for Object Oriented Software Development project
 4. **Sprint Backlog** https://github.com/ItsNotRick/COP4331/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Sprint+%231%22
 5. **Burndown Chart** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/Sprint1BurnDown.xlsx
 6. **Design Documents** drop that link here @Chris
-7. **Code** Code: https://github.com/ItsNotRick/COP4331/tree/develop/client-side \
-8. **Build/Run** Instructions: https://github.com/ItsNotRick/COP4331/blob/develop/documentation/AppHowTo.md
+7. **Code** https://github.com/ItsNotRick/COP4331/tree/develop/client-side\
+8. **Tests** We don't have them yet 
+
+Build/Run Instructions: https://github.com/ItsNotRick/COP4331/blob/develop/documentation/AppHowTo.md
+
 # Everything below was made early on and needs to be looked at
 ## Project Outline
 For now the focus will be on a phone app, using an arduino or ARM dev board is
