@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
-
 from passlib.apps import custom_app_context as pwd_context
 import json
 
