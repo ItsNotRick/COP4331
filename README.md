@@ -12,7 +12,7 @@ Main repository for Processes for Object Oriented Software Development project
 
 Build/Run Instructions: https://github.com/ItsNotRick/COP4331/blob/develop/documentation/AppHowTo.md
 
-# Everything below was made early on and needs to be looked at
+# Everything below was made early on and needs to be reviewed
 ## Project Outline
 For now the focus will be on a phone app, using an arduino or ARM dev board is
 also an option if we decide that we need greater control over the microphone.
