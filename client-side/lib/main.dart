@@ -1,6 +1,7 @@
 // import 'dart:io';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 // yay for lambda functions?
 void main() => runApp(MyApp());
@@ -98,7 +99,28 @@ class OptionsMenu extends StatefulWidget{
 }
 
 class Options extends State<OptionsMenu>{
-   double _threshold = 20.0;
+  double _threshold = 50.0;
+  double _volume = 50.0;
+
+  Options() {
+    setThreshold();
+    setVolume();
+  }
+  
+  setThreshold() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _threshold = prefs.getDouble('threshold') ?? 50.0;
+    });
+  }
+  
+  setVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _volume = prefs.getDouble('volume') ?? 50.0;
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     return MaterialApp(
@@ -109,7 +131,7 @@ class Options extends State<OptionsMenu>{
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget> [
               Text(
-                'Volume',
+                'Threshold: ${_threshold.round()}',
               ),
               Slider(
                 value: _threshold,
@@ -121,8 +143,24 @@ class Options extends State<OptionsMenu>{
                   });
                 },
               ),
+              Text(
+                'Volume: ${_volume.round()}'
+              ),
+              Slider(
+                value: _volume,
+                min: 0.0,
+                max: 100.0,
+                onChanged: (double value) {
+                  setState(() {
+                    _volume = value;
+                  });
+                },
+              ),
               RaisedButton(
-                onPressed:() {
+                onPressed:() async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.setDouble('threshold', _threshold);
+                  prefs.setDouble('volume', _volume);
                   Navigator.pop(
                     context
                   );
@@ -130,7 +168,7 @@ class Options extends State<OptionsMenu>{
                 padding: const EdgeInsets.all(8.0),
                 textColor: Colors.white,
                 color: Colors.blue,
-                child: Text('Return'),
+                child: Text('Save and Return'),
               ),
             ]
           ),
