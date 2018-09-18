@@ -7,17 +7,9 @@ import 'dart:async';
 void main() => runApp(MyApp());
 
 void test(context) => debugPrint("back");
-//                  RaisedButton(
-//                    onPressed:(path == 'pop') ? () { Navigator.of(context).pop(); } : () { Navigator.of(context).pushNamed(path); },
-//                    padding: const EdgeInsets.all(8.0),
-//                    textColor: Colors.white,
-//                    color: Colors.blue,
-//                    child: Text(testText),
-//                  ),
+     ),
 
 class MyApp extends StatelessWidget {
-  // build is the main function for a widget.
-  // Like render for react.
   @override
   Widget build(BuildContext context){
       return MaterialApp(
@@ -189,9 +181,6 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(
-      //title: Text("Settings"),
-      //),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
