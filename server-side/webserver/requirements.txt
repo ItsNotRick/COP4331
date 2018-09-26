@@ -1,8 +1,0 @@
-numpy
-scipy
-flask
-cython
-flask_sqlalchemy
-madmom
-passlib
-mysqlclient
