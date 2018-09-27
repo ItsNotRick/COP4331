@@ -177,19 +177,36 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-
+  final items = List<String>.generate(20, (i) => "BeatMap $i");
+  
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget> [
-            Text(
-              'game screen :^)'
-            ),
-          ]),
+    Widget listView = ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return InkWell(
+          onTap:() => debugPrint("woo"),
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            child:Text(items[index])
+          )
+        );
+      },
+    );
+
+    final title = 'Long List';
+
+    return MaterialApp(
+      title: title,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+        ),
+        body:listView,
       ),
     );
   }
 }
+
+
+
