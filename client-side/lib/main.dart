@@ -150,8 +150,13 @@ class Options extends State<OptionsMenu>{
               StreamBuilder(
                 stream: MicAudio.micAudioStream,
                 builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-                  if (snapshot.hasData) {
-                    return Text('AUDIO STREAM ${snapshot.data[1]}');
+                  if (snapshot.hasError)
+                    return new Text('Error: ${snapshot.error}');
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none: return new Text('no connection');
+                    case ConnectionState.waiting: return new Text('Awaiting audio...');
+                    case ConnectionState.active: return new Text('\$${snapshot.data}');
+                    case ConnectionState.done: return new Text('\$${snapshot.data} (closed)');
                   }
                   return Text('NO DATA');
                 }

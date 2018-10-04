@@ -11,6 +11,7 @@ import android.media.AudioRecord
 import android.media.AudioRecord.OnRecordPositionUpdateListener
 import android.media.AudioFormat
 import android.media.MediaRecorder
+import java.lang.Exception
 
 
 class MicAudioPlugin(mRegistrar: Registrar): MethodCallHandler, EventChannel.StreamHandler {
@@ -32,10 +33,10 @@ private var mEventSink: EventChannel.EventSink? = null
 
 
 
-  private fun initializeMicAudio() {
+  private fun initializeMicAudio(): Boolean {
     val SAMPLE_RATE = 44100
     val CHANNEL = AudioFormat.CHANNEL_IN_MONO
-    val SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+    val SOURCE = MediaRecorder.AudioSource.MIC
     val FORMAT = AudioFormat.ENCODING_PCM_8BIT
     val BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL, FORMAT)
     mAudioData = ByteArray(BUFFER_SIZE / 2)
@@ -55,20 +56,21 @@ private var mEventSink: EventChannel.EventSink? = null
     mRecorder = AudioRecord(SOURCE, SAMPLE_RATE, CHANNEL, FORMAT, BUFFER_SIZE)
     mRecorder.setRecordPositionUpdateListener(posUpdateListener)
     mRecorder.setPositionNotificationPeriod((SAMPLE_RATE / 5))
-    mRecorder?.startRecording()
-
+    return mRecorder != null
   }
 
   override fun onListen(args: Any, eventSink: EventChannel.EventSink) {
+    mRecorder?.startRecording()
     mEventSink = eventSink
   }
 
   override fun onCancel(args: Any) {
+    mRecorder?.stop()
     mEventSink = null
   }
 
   override fun onMethodCall(call: MethodCall, result: Result): Unit {
-    return when (call.method) {
+    when (call.method) {
       "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
       "initializeMicAudio" -> result.success(initializeMicAudio())
       else -> result.notImplemented()
