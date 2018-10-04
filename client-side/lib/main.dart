@@ -1,7 +1,10 @@
 // import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mic_audio/mic_audio.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 // yay for lambda functions?
 void main() => runApp(MyApp());
@@ -93,6 +96,13 @@ class OptionsMenu extends StatefulWidget{
 class Options extends State<OptionsMenu>{
   double _threshold = 50.0;
   double _volume = 50.0;
+  String _platformVersion = "Unknown";
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
 
   Options() {
     setThreshold();
@@ -113,6 +123,21 @@ class Options extends State<OptionsMenu>{
     });
   }
 
+  Future<void> initPlatformState() async {
+    String platformVersion;
+    try {
+      await MicAudio.initialize();
+    } catch (e) {
+      platformVersion = "Platform error: $e";
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     return MaterialApp(
@@ -122,6 +147,18 @@ class Options extends State<OptionsMenu>{
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget> [
+              StreamBuilder(
+                stream: MicAudio.micAudioStream,
+                builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                  if (snapshot.hasData) {
+                    return Text('AUDIO STREAM ${snapshot.data[1]}');
+                  }
+                  return Text('NO DATA');
+                }
+              ),
+              Text(
+                '$_platformVersion',
+              ),
               Text(
                 'Threshold: ${_threshold.round()}',
               ),

@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 class MicAudio {
@@ -14,19 +14,20 @@ class MicAudio {
     return version;
   }
 
-  static Stream<double> _micAudioStream;
+  static Stream<Uint8List> _micAudioStream;
 
   static Future<double> get reading async {
     final double reading = await _channel.invokeMethod('getMicAudio');
     return reading;
   }
 
-  static Stream<double> get micAudioStream {
-    _micAudioStream ??= _eventChannel.receiveBroadcastStream();
+  static Stream<Uint8List> get micAudioStream {
+    _micAudioStream ??= _eventChannel.receiveBroadcastStream().map<Uint8List>((value) => value);
     return _micAudioStream;
   }
 
   static Future<bool> initialize() async {
     bool ready = await _channel.invokeMethod('initializeMicAudio');
+    return ready;
   }
 }

@@ -32,7 +32,7 @@ private var mEventSink: EventChannel.EventSink? = null
 
 
 
-  fun initializeMicrophone() {
+  private fun initializeMicAudio() {
     val SAMPLE_RATE = 44100
     val CHANNEL = AudioFormat.CHANNEL_IN_MONO
     val SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION
@@ -55,7 +55,7 @@ private var mEventSink: EventChannel.EventSink? = null
     mRecorder = AudioRecord(SOURCE, SAMPLE_RATE, CHANNEL, FORMAT, BUFFER_SIZE)
     mRecorder.setRecordPositionUpdateListener(posUpdateListener)
     mRecorder.setPositionNotificationPeriod((SAMPLE_RATE / 5))
-    mRecorder.startRecording()
+    mRecorder?.startRecording()
 
   }
 
@@ -68,9 +68,9 @@ private var mEventSink: EventChannel.EventSink? = null
   }
 
   override fun onMethodCall(call: MethodCall, result: Result): Unit {
-    when (call.method) {
+    return when (call.method) {
       "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
-      "initializeMicrophone" -> result.success(initializeMicrophone())
+      "initializeMicAudio" -> result.success(initializeMicAudio())
       else -> result.notImplemented()
     }
   }

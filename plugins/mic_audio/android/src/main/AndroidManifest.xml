@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="ucf.deskdrummer.micaudio">
   <uses-sdk android:maxSdkVersion="29" android:minSdkVersion="3"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 </manifest>
