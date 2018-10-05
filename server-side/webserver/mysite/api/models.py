@@ -15,6 +15,7 @@ class Player(models.Model):
 
 class Song(models.Model):
     name = models.CharField(max_length=256)
+    artist = models.CharField(max_length=256,default=None, blank=True,null=True)
     bpm = models.IntegerField(default=0)
     genre = models.CharField(max_length=256)
     timeSig = models.IntegerField(default=0)
@@ -31,7 +32,7 @@ class BeatMap(models.Model):
 class Play(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     beat_map = models.ForeignKey(BeatMap, on_delete=models.CASCADE)
-    score = models.IntegerField(default=0)
+    score = models.IntegerField(default=None, blank=True, null=True)
     rating = models.IntegerField(default=0)
     def __str__(self):
         return self.id
