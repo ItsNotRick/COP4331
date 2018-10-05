@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.hashers import BCryptPasswordHasher, check_password, make_password
 import json
-from . import models
+from .models import Player, Song, BeatMap, Play
 import os
 
 # Create your views here.
@@ -11,44 +11,74 @@ def index(request):
     return HttpResponse("Hello, you have reached the API.")
 
 def register(request):
-    print("hello!!! {}".format( request.method))
+    
     if request.method == "GET":
         return HttpResponse("Hello, you have reached the API registry")
     
-    if request.POST['username'] == '':
+    data = json.loads(request.body)
+
+    if data['username'] == '':
         return HttpResponse("empty username")
     
-    if request.POST['password'] == '':
+    if data['password'] == '':
         return HttpResponse("empty password")
      
-    if models.Player.objects.filter(username= request.POST['username'] ).exists():
+    if Player.objects.filter(username= data['username'] ).exists():
         return HttpResponse("duplicate user.")
     
-    create_user(request.POST['username'], request.POST['password'])
+    create_user(data['username'], data['password'])
     
     
     return HttpResponse("user registered!")
 
 def create_user(u_name, pwd):
-    new_user = models.Player(username=u_name, pwd_hash=make_password(pwd, hasher='pbkdf2_sha256'))
+    new_user = Player(username=u_name, pwd_hash=make_password(pwd, hasher='pbkdf2_sha256'))
     new_user.save()
 
 def download_song(request):
     song_file = ''
     
+
+
     if request.method == "GET":
         return HttpResponse('')
     
-    if request.POST['name'] is None:
+    data = json.loads(request.body)
+
+    if data['name'] == '':
         return HttpResponse('empty name')
     
     # this should actually be able to catch any injection attacks but
-    elif models.Song.objects.filter(name = request.POST['name']).exists() is not True:
+    elif Song.objects.filter(name = data['name']).exists() is not True:
         return HttpResponse('Song does not Exist')
     
-    song_file = request.POST['name'].replace('.', '').replace('|', '').replace('*','').replace('?', '').replace('~','') + '.json'
+    song_file = data['name'].replace('.', '').replace('|', '').replace('*','').replace('?', '').replace('~','') + '.json'
     
     with open(os.path.join(os.path.dirname(__file__), "Songs/{}".format(song_file) ) ) as f:
         song_data = json.load(f)
     return JsonResponse(song_data)
+
+def record_play(request):
+    if request.method == "GET":
+        return HttpResponse('')
+
+    data = json.loads(request.body)
+    
+    if data['username'] == '' or Player.objects.filter(username= request.POST['username'] ).exists() is not True:
+        return HttpResponse("invalid username")
+    # should we check a password for validation?
+    elif data['beatmap'] == '' or BeatMap.objects.filter(id= request.POST['beatmap'] ).exists() is not True:
+        return HttpResponse('invalid beat_map')
+    elif data['score'] == '':
+        return HttpResponse('empty score')
+    
+    if data['rating'] == '':
+        rating = None
+    create_play(request.POST['username'],  request.POST['beatmap'], request.POST['score'],request.POST['rating'] )
+
+def create_play(username, beatmap, score, rating):
+    new_play = Play(player = username, beat_map = beatmap, score = score, rating = rating)
+
+    
+    
 
