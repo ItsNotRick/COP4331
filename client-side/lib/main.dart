@@ -97,6 +97,7 @@ class Options extends State<OptionsMenu>{
   double _threshold = 50.0;
   double _volume = 50.0;
   String _platformVersion = "Unknown";
+  var _backgroundColor = Colors.white;
 
   @override
   void initState() {
@@ -143,6 +144,7 @@ class Options extends State<OptionsMenu>{
     return MaterialApp(
       title: 'Flutter Demo',
       home: Scaffold(
+        backgroundColor: _backgroundColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -151,13 +153,18 @@ class Options extends State<OptionsMenu>{
                 stream: MicAudio.micAudioStream,
                 builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
                   if (snapshot.hasData) {
-                    var sum = 0;
+                    var sum = 0.0;
+                    var prev = 127.5;
+                    var jump = 0.0;
                     for (var audio in snapshot.data) {
-                      sum += audio;
+                      if (audio != -1) sum += audio;
+                      jump = (audio - prev) > jump ? audio - prev : jump;
+                      prev = audio + .0;
                     }
                     var avg = sum / snapshot.data.length;
                     var sAvg = avg.toStringAsFixed(3);
-                    return Text('NUM SAMPLES: ${snapshot.data.length} AUDIO: $sAvg');
+                    if (jump > _threshold) return Text('*****************************\nJUMP: ${jump} AUDIO: $sAvg');
+                    return Text('JUMP: ${jump} AUDIO: $sAvg');
                   }
                   return Text('NO DATA');
                 }
