@@ -7,7 +7,6 @@ from . import models
 def index(request):
     return HttpResponse("Hello, you have reached the API.")
 
-# @csrf_exempt
 def register(request):
     print("hello!!! {}".format( request.method))
     if request.method == "GET":
@@ -25,7 +24,5 @@ def register(request):
     new_user = models.Player(username=request.POST['username'], pwd_hash=request.POST['password'])
     new_user.save()
     
-
     return HttpResponse("user registered!")
-    
-    
+
