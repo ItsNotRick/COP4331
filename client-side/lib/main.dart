@@ -124,7 +124,7 @@ class Options extends State<OptionsMenu>{
   }
 
   Future<void> initPlatformState() async {
-    String platformVersion;
+    String platformVersion = "asdf";
     try {
       await MicAudio.initialize();
     } catch (e) {
@@ -150,13 +150,14 @@ class Options extends State<OptionsMenu>{
               StreamBuilder(
                 stream: MicAudio.micAudioStream,
                 builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none: return new Text('no connection');
-                    case ConnectionState.waiting: return new Text('Awaiting audio...');
-                    case ConnectionState.active: return new Text('\$${snapshot.data}');
-                    case ConnectionState.done: return new Text('\$${snapshot.data} (closed)');
+                  if (snapshot.hasData) {
+                    var sum = 0;
+                    for (var audio in snapshot.data) {
+                      sum += audio;
+                    }
+                    var avg = sum / snapshot.data.length;
+                    var sAvg = avg.toStringAsFixed(3);
+                    return Text('NUM SAMPLES: ${snapshot.data.length} AUDIO: $sAvg');
                   }
                   return Text('NO DATA');
                 }

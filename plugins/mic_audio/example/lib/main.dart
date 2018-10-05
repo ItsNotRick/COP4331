@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -13,11 +14,28 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  bool _micInitialized = false;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    initMicAudio();
+  }
+
+  Future<void> initMicAudio() async {
+    bool succ = true;
+    try {
+      succ = await MicAudio.initialize();
+    } catch (e) {
+      succ = false;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _micInitialized = succ;
+    });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -48,7 +66,20 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: new Center(
-          child: new Text('Running on: $_platformVersion\n'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget> [
+              Text('Running on: $_platformVersion\n'),
+              Text('Intialized? $_micInitialized\n'),
+              StreamBuilder(
+                stream: MicAudio.micAudioStream,
+                builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                  if (snapshot.hasData) return Text('${snapshot.data}\n');
+                  return Text('NO DATA\n');
+                }
+              ),
+            ]
+          ),
         ),
       ),
     );
