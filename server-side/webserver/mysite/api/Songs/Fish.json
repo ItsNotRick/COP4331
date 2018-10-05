@@ -1,0 +1,11 @@
+{
+    "name": "Fish",
+    "artist":"Clara C",
+    "beatmap": [
+        "1",
+        "2",
+        "3"
+    ],
+    "time_signature":"3",
+    "Genre": "Pop"
+}
