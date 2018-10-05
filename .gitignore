@@ -1,3 +1,4 @@
 *.pyc
 server-side/webserver/config.json
 server-side/webserver/mysite/db.sqlite3
+server-side/webserver/.vscode/
