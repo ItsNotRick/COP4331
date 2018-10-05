@@ -32,7 +32,7 @@ class BeatMap(models.Model):
 class Play(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     beat_map = models.ForeignKey(BeatMap, on_delete=models.CASCADE)
-    score = models.IntegerField(default=None, blank=True, null=True)
-    rating = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)
+    rating = models.IntegerField(default=None, blank=True, null=True)
     def __str__(self):
         return self.id
