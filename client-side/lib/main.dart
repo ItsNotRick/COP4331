@@ -1,7 +1,10 @@
 // import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mic_audio/mic_audio.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 // yay for lambda functions?
 void main() => runApp(MyApp());
@@ -93,6 +96,14 @@ class OptionsMenu extends StatefulWidget{
 class Options extends State<OptionsMenu>{
   double _threshold = 50.0;
   double _volume = 50.0;
+  String _platformVersion = "Unknown";
+  var _backgroundColor = Colors.white;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
 
   Options() {
     setThreshold();
@@ -113,15 +124,54 @@ class Options extends State<OptionsMenu>{
     });
   }
 
+  Future<void> initPlatformState() async {
+    String platformVersion = "asdf";
+    try {
+      await MicAudio.initialize();
+    } catch (e) {
+      platformVersion = "Platform error: $e";
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     return MaterialApp(
       title: 'Flutter Demo',
       home: Scaffold(
+        backgroundColor: _backgroundColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget> [
+              StreamBuilder(
+                stream: MicAudio.micAudioStream,
+                builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                  if (snapshot.hasData) {
+                    var sum = 0.0;
+                    var prev = 127.5;
+                    var jump = 0.0;
+                    for (var audio in snapshot.data) {
+                      if (audio != -1) sum += audio;
+                      jump = (audio - prev) > jump ? audio - prev : jump;
+                      prev = audio + .0;
+                    }
+                    var avg = sum / snapshot.data.length;
+                    var sAvg = avg.toStringAsFixed(3);
+                    if (jump > _threshold) return Text('*****************************\nJUMP: ${jump} AUDIO: $sAvg');
+                    return Text('JUMP: ${jump} AUDIO: $sAvg');
+                  }
+                  return Text('NO DATA');
+                }
+              ),
+              Text(
+                '$_platformVersion',
+              ),
               Text(
                 'Threshold: ${_threshold.round()}',
               ),

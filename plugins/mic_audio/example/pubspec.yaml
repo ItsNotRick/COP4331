@@ -1,5 +1,5 @@
-name: myapp
-description: A new Flutter project.
+name: mic_audio_example
+description: Demonstrates how to use the mic_audio plugin.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,17 +19,13 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  english_words: ^3.1.0
-
-  shared_preferences: ^0.4.2
-
-  mic_audio:
-    path: ../plugins/mic_audio/
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  mic_audio:
+    path: ../
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
