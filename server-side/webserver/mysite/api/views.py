@@ -15,10 +15,10 @@ def register(request):
     if request.method == "GET":
         return HttpResponse("Hello, you have reached the API registry")
     
-    if request.POST['username'] is None:
+    if request.POST['username'] == '':
         return HttpResponse("empty username")
     
-    if request.POST['password'] is None:
+    if request.POST['password'] == '':
         return HttpResponse("empty password")
      
     if models.Player.objects.filter(username= request.POST['username'] ).exists():
