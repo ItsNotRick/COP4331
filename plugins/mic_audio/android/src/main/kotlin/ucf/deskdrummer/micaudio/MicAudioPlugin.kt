@@ -33,14 +33,23 @@ private var mEventSink: EventChannel.EventSink? = null
   }
 
 
-
   private fun initializeMicAudio(): Boolean {
-    val SAMPLE_RATE = 44100
-    val CHANNEL = AudioFormat.CHANNEL_IN_MONO
-    val SOURCE = MediaRecorder.AudioSource.MIC
-    val FORMAT = AudioFormat.ENCODING_PCM_8BIT
-    val BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL, FORMAT)
-    mAudioData = ByteArray(BUFFER_SIZE / 2)
+    val potential_sample_rates = intArrayOf(44100, 22050, 16000, 11025, 8000)
+    var sample_rate = 0
+    val channel = AudioFormat.CHANNEL_IN_MONO
+    val source = MediaRecorder.AudioSource.MIC
+    val format = AudioFormat.ENCODING_PCM_8BIT
+    var buffer_size = 0
+    for (rate in potential_sample_rates) {
+      buffer_size = AudioRecord.getMinBufferSize(rate, channel, format)
+      if (buffer_size > 0) {
+        sample_rate = rate;
+        break;
+      }
+    }
+    if (buffer_size < 1) return false
+
+    mAudioData = ByteArray(buffer_size / 2)
     val posUpdateListener = object : OnRecordPositionUpdateListener {
       override fun onPeriodicNotification(recorder: AudioRecord?) {
 //        val numRead = recorder?.read(mAudioData, 0, mAudioData.size)
@@ -54,10 +63,10 @@ private var mEventSink: EventChannel.EventSink? = null
 
       override fun onMarkerReached(recorder: AudioRecord?) {}
     }
-    mRecorder = AudioRecord(SOURCE, SAMPLE_RATE, CHANNEL, FORMAT, BUFFER_SIZE)
+    mRecorder = AudioRecord(source, sample_rate, channel, format, buffer_size)
     mRecorder.setRecordPositionUpdateListener(posUpdateListener)
-    mRecorder.setPositionNotificationPeriod((SAMPLE_RATE / 5))
-    return mRecorder != null
+    mRecorder.setPositionNotificationPeriod((sample_rate / 5))
+    return mRecorder.getState() == AudioRecord.STATE_INITIALIZED
   }
 
   override fun onListen(args: Any?, eventSink: EventChannel.EventSink) {
