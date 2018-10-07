@@ -8,17 +8,21 @@ class TestScreen extends StatefulWidget {
 
 class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
   AnimationController _controller;
-  Animation<Offset> animation;
-  Animation<double> disappear;
+  AnimationController _controller2;
+
   bool _visible = true;
   initState() {
     super.initState();
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
-    animation = Tween(begin: new Offset(5.0, 0.0), end: new Offset(-3.0, 0.0))
-        .animate(_controller);
+    {
+      _controller = AnimationController(
+          duration: const Duration(milliseconds: 200), vsync: this);
 
-    _controller.forward();
+      _controller2 = AnimationController(
+          duration: const Duration(milliseconds: 200), vsync: this);
+
+      _controller.forward();
+      _controller2.forward();
+    }
   }
 
   @override
@@ -31,25 +35,54 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
             appBar: AppBar(
               title: Text(title),
             ),
-            body: new Builder(builder: (BuildContext context) {
-              return new Center(
-                  child: SlideTransition(
-                      position: animation,
-                      child: AnimatedOpacity(
-                        opacity: _visible ? 1.0 : 0.0,
-                        duration: Duration(milliseconds: 200),
-                        child: IconButton(
-                            icon: new Icon(Icons.add_circle),
-                            color: Colors.red,
-                            iconSize: 100.0,
-                            onPressed: () {
-                              setState(() {
-                                //_visible = !_visible;
-                                _controller.reset();
-                                _controller.forward();
-                              });
-                            }),
-                      )));
-            })));
+            bottomNavigationBar: FloatingActionButton(
+                child: Text("push"),
+                onPressed: () {
+                  setState(() {});
+                }),
+            body: new Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ScaleTransition(
+                    scale: CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(0.5, 1.0, curve: Curves.easeIn)),
+                    child: AnimatedOpacity(
+                      opacity: _visible ? 1.0 : 0.0,
+                      duration: Duration(milliseconds: 200),
+                      child: IconButton(
+                          icon: new Icon(Icons.trip_origin),
+                          color: Colors.red,
+                          iconSize: 200.0,
+                          onPressed: () {
+                            setState(() {
+                              //_visible = !_visible;
+                              _controller.reset();
+                              _controller.forward();
+                            });
+                          }),
+                    )),
+                ScaleTransition(
+                    scale: CurvedAnimation(
+                        parent: _controller2,
+                        curve: Interval(0.5, 1.0, curve: Curves.linear)),
+                    child: AnimatedOpacity(
+                      opacity: _visible ? 1.0 : 0.0,
+                      duration: Duration(milliseconds: 5000),
+                      child: IconButton(
+                          icon: new Icon(Icons.trip_origin),
+                          color: Colors.red,
+                          iconSize: 200.0,
+                          onPressed: () {
+                            setState(() {
+                              //_visible = !_visible;
+                              _controller2.reset();
+                              _controller2.forward();
+                            });
+                          }),
+                    ))
+              ],
+            ))));
   }
 }
