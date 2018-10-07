@@ -23,6 +23,8 @@ dependencies:
 
   shared_preferences: ^0.4.2
 
+  tuple: ^1.0.2
+
   mic_audio:
     path: ../plugins/mic_audio/
 

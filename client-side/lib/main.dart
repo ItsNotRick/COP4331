@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import './animation.dart';
+import './audiotap_input.dart';
 
 // yay for lambda functions?
 void main() => runApp(MyApp());
@@ -130,7 +131,8 @@ class Options extends State<OptionsMenu> {
   Future<void> initPlatformState() async {
     String platformVersion = "asdf";
     try {
-      await MicAudio.initialize();
+      //await MicAudio.initialize();
+      await AudiotapInput.initialize(_threshold);
     } catch (e) {
       platformVersion = "Platform error: $e";
     }
@@ -153,27 +155,36 @@ class Options extends State<OptionsMenu> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 StreamBuilder(
-                    stream: MicAudio.micAudioStream,
+                    stream: AudiotapInput.audiotapStream(),
                     builder: (BuildContext context,
-                        AsyncSnapshot<Uint8List> snapshot) {
+                      AsyncSnapshot<int> snapshot) {
                       if (snapshot.hasData) {
-                        var sum = 0.0;
-                        var prev = 127.5;
-                        var jump = 0.0;
-                        for (var audio in snapshot.data) {
-                          if (audio != -1) sum += audio;
-                          jump = (audio - prev) > jump ? audio - prev : jump;
-                          prev = audio + .0;
-                        }
-                        var avg = sum / snapshot.data.length;
-                        var sAvg = avg.toStringAsFixed(3);
-                        if (jump > _threshold)
-                          return Text(
-                              '*****************************\nJUMP: ${jump} AUDIO: $sAvg');
-                        return Text('JUMP: ${jump} AUDIO: $sAvg');
+                        return Text('Time: ${snapshot.data}');
                       }
-                      return Text('NO DATA');
+                      return Text('Undetected Init?: ${AudiotapInput.initialized}');
                     }),
+//                StreamBuilder(
+//                    stream: MicAudio.micAudioStream,
+//                    builder: (BuildContext context,
+//                      AsyncSnapshot<Uint8List> snapshot) {
+//                      if (snapshot.hasData) {
+//                        var sum = 0.0;
+//                        var prev = 127.5;
+//                        var jump = 0.0;
+//                        for (var audio in snapshot.data) {
+//                          if (audio != -1) sum += audio;
+//                          jump = (audio - prev) > jump ? audio - prev : jump;
+//                          prev = audio + .0;
+//                        }
+//                        var avg = sum / snapshot.data.length;
+//                        var sAvg = avg.toStringAsFixed(3);
+//                        if (jump > _threshold)
+//                          return Text(
+//                              '*****************************\nJUMP: ${jump} AUDIO: $sAvg');
+//                        return Text('JUMP: ${jump} AUDIO: $sAvg');
+//                      }
+//                      return Text('NO DATA');
+//                    }),
                 Text(
                   '$_platformVersion',
                 ),
@@ -188,6 +199,7 @@ class Options extends State<OptionsMenu> {
                     setState(() {
                       _threshold = value;
                     });
+                    AudiotapInput.threshold = value;
                   },
                 ),
                 Text('Volume: ${_volume.round()}'),
