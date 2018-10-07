@@ -9,7 +9,7 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
   AnimationController _controller;
   AnimationController _controller2;
-
+  int score = 1;  
   bool _visible = true;
   initState() {
     super.initState();
@@ -28,22 +28,26 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final title = 'test';
-
+     
     return MaterialApp(
         title: title,
         home: Scaffold(
             appBar: AppBar(
               title: Text(title),
             ),
-            bottomNavigationBar: FloatingActionButton(
-                child: Text("push"),
-                onPressed: () {
-                  setState(() {});
-                }),
+
+            bottomSheet: 
+            Text("Score: $score",
+              textScaleFactor: 3.0,
+              textAlign: TextAlign.center,
+            ),
+            
+            
             body: new Center(
-                child: Column(
+                child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+
                 ScaleTransition(
                     scale: CurvedAnimation(
                         parent: _controller,
@@ -54,10 +58,12 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
                       child: IconButton(
                           icon: new Icon(Icons.trip_origin),
                           color: Colors.red,
-                          iconSize: 200.0,
+                          iconSize: 150.0,
                           onPressed: () {
                             setState(() {
                               //_visible = !_visible;
+                                                          score++;
+
                               _controller.reset();
                               _controller.forward();
                             });
@@ -73,10 +79,11 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
                       child: IconButton(
                           icon: new Icon(Icons.trip_origin),
                           color: Colors.red,
-                          iconSize: 200.0,
+                          iconSize: 150.0,
                           onPressed: () {
                             setState(() {
                               //_visible = !_visible;
+                              score++;
                               _controller2.reset();
                               _controller2.forward();
                             });
