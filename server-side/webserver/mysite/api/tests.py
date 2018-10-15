@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import Player, Song, BeatMap
+from .models import *
 from django.contrib.auth.hashers import check_password
 from .views import create_user
 import json
@@ -46,7 +46,7 @@ class PlayerTestCase(TestCase):
         
         self.assertEqual(Player.objects.filter(username = "dupe").count(), 1)
 
-class RecordBeatMapTestCase(TestCase):
+class DownloadBeatmapTestCase(TestCase):
     def setUp(self):
         fish = Song(name="Fish", artist=None, bpm=180, genre='Pop', timeSig=4)
         fish.save()
@@ -82,11 +82,11 @@ class RecordBeatMapTestCase(TestCase):
         self.assertEqual(response.status_code,200)
         self.assertEqual(response.content, b"empty name")
 
-class RecordBeatMapTestCase(TestCase):
+class RecordPlayTestCase(TestCase):
     def setUp(self):
         test_user = Player(username = 'Yash', pwd_hash="sdkjfsldkjf")
         test_song = Song(name="Fish", artist=None, bpm=180, genre='Pop', timeSig=4)
-        test_map = BeatMap(difficulty=1, creator=1, Song=1) 
+        test_map = BeatMap(difficulty=1, creator_id=1, song_id=1) 
         
         test_user.save()
         test_song.save()
@@ -96,10 +96,13 @@ class RecordBeatMapTestCase(TestCase):
         c = Client()
 
         body = { "username" : "Yash", "beatmap": "1", "score" : "100" }
-        response = c.post('/api/record_beatmap',  json.dumps(body), content_type="application/json")
+        response = c.post('/api/record_play',  json.dumps(body), content_type="application/json")
         
         self.assertEqual(response.status_code, 200)
+        print(response.content)
+        
         compareVal = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(Play.objects.filter(id = "1").count(), 1)
         self.assertEqual(compareVal, {"message": "Score Registered!"})
 
         

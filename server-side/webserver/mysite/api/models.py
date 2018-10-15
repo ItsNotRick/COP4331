@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password, check_password
 
 
 class Player(models.Model):
+    # id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=256)
     pwd_hash = models.CharField(max_length=256, editable=False)
     num_maps_created = models.IntegerField(default = 0)

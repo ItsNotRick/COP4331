@@ -94,12 +94,20 @@ def record_play(request):
     elif 'score' not in data or data['score'] == '':
         return HttpResponse('empty score')
     
-#     if data['rating'] == '':
-#         rating = None
-#     create_play(data['username'],  data['beatmap'], data['score'],data['rating'] )
+    if 'rating' not in data or data['rating'] == '':
+        rating = None
+    else:
+        rating = data['rating']
+    
+    create_play(data['username'],  data['beatmap'], data['score'], rating)
+    body = {'message': 'Score Registered!'} 
+    return JsonResponse(body)
 
-# def create_play(username, beatmap, score, rating):
-#     new_play = Play(player = username, beat_map = beatmap, score = score, rating = rating)
+
+def create_play(username, beatmap, score, rating):
+    uid = Player.objects.filter(username=username)[0].id
+    new_play = Play(player_id = uid, beat_map_id = beatmap, score = score, rating = rating)
+    new_play.save()
 
     
     
