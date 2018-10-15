@@ -3,39 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mic_audio/mic_audio.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:typed_data';
+import './animation.dart';
 
 // yay for lambda functions?
 void main() => runApp(MyApp());
 
 void test(context) => debugPrint("back");
-     
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context){
-      return MaterialApp(
-        title: 'Flutter Demo',
-        initialRoute: '/',
-        routes: {
-          '/' : (context) => MainMenu(),
-          '/options' : (context) => OptionsMenu(),
-          '/game' : (context) => GameScreen(),
-        },
-      );
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainMenu(),
+        '/options': (context) => OptionsMenu(),
+        '/game': (context) => GameScreen(),
+        '/test': (context) => TestScreen(),
+      },
+    );
   }
-
 }
 
-class MainMenu extends StatelessWidget{
+class MainMenu extends StatelessWidget {
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     Widget titleSection = Container(
-      padding: const EdgeInsets.all(32.0),
-      child: Center(
-        child: Column(
+        padding: const EdgeInsets.all(32.0),
+        child: Center(
+            child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
@@ -52,20 +53,15 @@ class MainMenu extends StatelessWidget{
               ),
             ),
           ],
-        )
-      )
-    );
+        )));
 
     return Scaffold(
       body: ListView(
-        children: <Widget> [
+        children: <Widget>[
           titleSection,
           RaisedButton(
-            onPressed:() {
-              Navigator.pushNamed(
-                context,
-                '/game'
-              );
+            onPressed: () {
+              Navigator.pushNamed(context, '/game');
             },
             padding: const EdgeInsets.all(8.0),
             textColor: Colors.white,
@@ -73,27 +69,34 @@ class MainMenu extends StatelessWidget{
             child: Text('Game'),
           ),
           RaisedButton(
-            onPressed:() {
-              Navigator.pushNamed(
-                context,
-                '/options'
-              );
+            onPressed: () {
+              Navigator.pushNamed(context, '/options');
             },
             padding: const EdgeInsets.all(8.0),
             textColor: Colors.white,
             color: Colors.blue,
             child: Text('Options'),
           ),
+          RaisedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/test');
+            },
+            padding: const EdgeInsets.all(8.0),
+            textColor: Colors.white,
+            color: Colors.blue,
+            child: Text('test'),
+          ),
         ],
       ),
     );
   }
 }
-class OptionsMenu extends StatefulWidget{
+
+class OptionsMenu extends StatefulWidget {
   Options createState() => Options();
 }
 
-class Options extends State<OptionsMenu>{
+class Options extends State<OptionsMenu> {
   double _threshold = 50.0;
   double _volume = 50.0;
   String _platformVersion = "Unknown";
@@ -109,14 +112,14 @@ class Options extends State<OptionsMenu>{
     setThreshold();
     setVolume();
   }
-  
+
   setThreshold() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _threshold = prefs.getDouble('threshold') ?? 50.0;
     });
   }
-  
+
   setVolume() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -140,80 +143,77 @@ class Options extends State<OptionsMenu>{
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       home: Scaffold(
         backgroundColor: _backgroundColor,
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget> [
-              StreamBuilder(
-                stream: MicAudio.micAudioStream,
-                builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-                  if (snapshot.hasData) {
-                    var sum = 0.0;
-                    var prev = 127.5;
-                    var jump = 0.0;
-                    for (var audio in snapshot.data) {
-                      if (audio != -1) sum += audio;
-                      jump = (audio - prev) > jump ? audio - prev : jump;
-                      prev = audio + .0;
-                    }
-                    var avg = sum / snapshot.data.length;
-                    var sAvg = avg.toStringAsFixed(3);
-                    if (jump > _threshold) return Text('*****************************\nJUMP: ${jump} AUDIO: $sAvg');
-                    return Text('JUMP: ${jump} AUDIO: $sAvg');
-                  }
-                  return Text('NO DATA');
-                }
-              ),
-              Text(
-                '$_platformVersion',
-              ),
-              Text(
-                'Threshold: ${_threshold.round()}',
-              ),
-              Slider(
-                value: _threshold,
-                min: 0.0,
-                max: 100.0,
-                onChanged: (double value) {
-                  setState(() {
-                    _threshold = value;
-                  });
-                },
-              ),
-              Text(
-                'Volume: ${_volume.round()}'
-              ),
-              Slider(
-                value: _volume,
-                min: 0.0,
-                max: 100.0,
-                onChanged: (double value) {
-                  setState(() {
-                    _volume = value;
-                  });
-                },
-              ),
-              RaisedButton(
-                onPressed:() async {
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs.setDouble('threshold', _threshold);
-                  prefs.setDouble('volume', _volume);
-                  Navigator.pop(
-                    context
-                  );
-                },
-                padding: const EdgeInsets.all(8.0),
-                textColor: Colors.white,
-                color: Colors.blue,
-                child: Text('Save and Return'),
-              ),
-            ]
-          ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                StreamBuilder(
+                    stream: MicAudio.micAudioStream,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Uint8List> snapshot) {
+                      if (snapshot.hasData) {
+                        var sum = 0.0;
+                        var prev = 127.5;
+                        var jump = 0.0;
+                        for (var audio in snapshot.data) {
+                          if (audio != -1) sum += audio;
+                          jump = (audio - prev) > jump ? audio - prev : jump;
+                          prev = audio + .0;
+                        }
+                        var avg = sum / snapshot.data.length;
+                        var sAvg = avg.toStringAsFixed(3);
+                        if (jump > _threshold)
+                          return Text(
+                              '*****************************\nJUMP: ${jump} AUDIO: $sAvg');
+                        return Text('JUMP: ${jump} AUDIO: $sAvg');
+                      }
+                      return Text('NO DATA');
+                    }),
+                Text(
+                  '$_platformVersion',
+                ),
+                Text(
+                  'Threshold: ${_threshold.round()}',
+                ),
+                Slider(
+                  value: _threshold,
+                  min: 0.0,
+                  max: 100.0,
+                  onChanged: (double value) {
+                    setState(() {
+                      _threshold = value;
+                    });
+                  },
+                ),
+                Text('Volume: ${_volume.round()}'),
+                Slider(
+                  value: _volume,
+                  min: 0.0,
+                  max: 100.0,
+                  onChanged: (double value) {
+                    setState(() {
+                      _volume = value;
+                    });
+                  },
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setDouble('threshold', _threshold);
+                    prefs.setDouble('volume', _volume);
+                    Navigator.pop(context);
+                  },
+                  padding: const EdgeInsets.all(8.0),
+                  textColor: Colors.white,
+                  color: Colors.blue,
+                  child: Text('Save and Return'),
+                ),
+              ]),
         ),
       ),
     );
@@ -221,26 +221,22 @@ class Options extends State<OptionsMenu>{
 }
 
 class GameScreen extends StatefulWidget {
-
   @override
   _GameScreenState createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
   final items = List<String>.generate(20, (i) => "BeatMap $i");
-  
+
   @override
   Widget build(BuildContext context) {
     Widget listView = ListView.builder(
       itemCount: items.length,
       itemBuilder: (context, index) {
         return InkWell(
-          onTap:() => debugPrint("woo"),
-          child: Container(
-            padding: EdgeInsets.all(20.0),
-            child:Text(items[index])
-          )
-        );
+            onTap: () => debugPrint("woo"),
+            child: Container(
+                padding: EdgeInsets.all(20.0), child: Text(items[index])));
       },
     );
 
@@ -252,11 +248,8 @@ class _GameScreenState extends State<GameScreen> {
         appBar: AppBar(
           title: Text(title),
         ),
-        body:listView,
+        body: listView,
       ),
     );
   }
 }
-
-
-
