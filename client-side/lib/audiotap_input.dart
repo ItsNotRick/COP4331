@@ -4,46 +4,66 @@ import 'dart:async';
 import 'package:tuple/tuple.dart';
 import 'package:flutter/services.dart';
 
+class TapStats {
+  final double avgVol;
+  final double peakVol;
+  final double peakDelta;
+  const TapStats(this.avgVol, this.peakVol, this.peakDelta);
+}
+
+class Tap {
+  final TapStats stats;
+  final int timestamp;
+  const Tap(this.stats, this.timestamp);
+}
 
 class AudiotapInput {
   static Stopwatch timer = Stopwatch();
+  static Stream<Tap> _tapStream;
+  static Stream<Uint8List> rawAudioStream;
   static bool initialized = false;
   static bool _streaming = false;
   static double threshold = 5.0;
 
-  static Stream<int> audiotapStream() async* {
-  Uint8List curr;
-  double sum = 0.0;
-  double avg = 0.0;
-  double prev = 127.5;
-  double maxSlope = 0.0;
-  _streaming = true;
-  timer.reset();
-  timer.start();
-
-  while (_streaming && audioStream != null) {
-    if (! await audioStream.isEmpty) {
-      curr = await audioStream.last;
-      sum = 0.0;
-      for (var audio in curr) {
-        if (audio != -1) sum += audio;
-          maxSlope = (audio - prev) > maxSlope ? audio - prev : maxSlope;
-          prev = audio + .0;
-        }
-        avg = sum / curr.length;
-        prev = avg;
-        if (maxSlope > threshold) yield timer.elapsedMilliseconds;
-      }
-    }
-  }
-
-  static initialize (double thresh) async {
+  static Stream<Tap> initialize (double thresh) {
     threshold = thresh;
+    timer.reset();
+    timer.start();
+
     MicAudio.initialize().then((init) {
       initialized = init;
       if (initialized == true) {
-        MicAudio.micAudioStream.listen(onData);
+        rawAudioStream = MicAudio.micAudioStream;
+        _tapStream = mapTimeStamps(rawAudioStream);
+        //MicAudio.micAudioStream.listen(onData);
       }
     });
+    return _tapStream;
+  }
+
+  static TapStats _genTapStats(Uint8List xs) {
+    var sum = 0.0;
+    var prev = 127.5;
+    var max = 0.0;
+    var jump = 0.0;
+
+    for (int sample in xs) {
+      if (sample != -1) sum += sample;
+      if (sample > max) max = sample + .0;
+      jump = (sample - prev) > jump ? sample - prev : jump;
+      prev = sample + 0.0;
+    }
+    return TapStats(sum / xs.last, max, jump);
+  }
+
+  static Stream<Tap> get tapStream {
+    _tapStream ??= initialize(threshold);
+    return _tapStream;
+  }
+
+  static Stream<Tap> mapTimeStamps (Stream<Uint8List> micInput) {
+    return micInput.map(
+      (Uint8List xs) => Tap(_genTapStats(xs), timer.elapsedMilliseconds)
+    );
   }
 }
