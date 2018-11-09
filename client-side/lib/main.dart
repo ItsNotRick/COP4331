@@ -159,7 +159,7 @@ class Options extends State<OptionsMenu> {
                     builder: (BuildContext context,
                       AsyncSnapshot<Tap> snapshot) {
                       if (snapshot.hasData) {
-                        return Text('Time: ${snapshot.data.timestamp} Loudness: ${snapshot.data.stats.peakDelta}');
+                        return Text('Time: ${snapshot.data.timestamp} Peak Delta: ${snapshot.data.stats.peakDelta}');
                       }
                       return Text('');
                     }),
