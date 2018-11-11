@@ -1,0 +1,17 @@
+name: audioplayer
+description: A flutter plugin to play audio files
+version: 0.5.1
+author: Erick Ghaumez <erick@rxla.bz>
+homepage: https://github.com/rxlabz/audioplayer
+
+flutter:
+  plugin:
+    androidPackage: bz.rxla.audioplayer
+    pluginClass: AudioplayerPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+environment:
+    sdk: ">=1.19.0 <3.0.0"
