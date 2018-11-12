@@ -6,8 +6,6 @@ import 'audiotap_input.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +17,88 @@ const kUrl2 = "http://www.rxlabz.com/labz/audio.mp3";
 
 enum PlayerState { stopped, playing, paused }
 
+class Beat {
+  int millisFromStart;
+  int hitBand;
+  Beat(this.millisFromStart, this.hitBand);
+}
+
+class Song {
+  double bpm;
+  List<Beat> beats;
+  Song(this.bpm, this.beats);
+}
+
+class AnimatedBeatWidget extends StatefulWidget {
+  final Beat beat;
+
+  const AnimatedBeatWidget({Key, key, this.beat}) : super(key: key);
+
+  AnimatedBeat createState() => AnimatedBeat();
+}
+
+class AnimatedBeat extends State<AnimatedBeatWidget> with SingleTickerProviderStateMixin{
+  AnimationController controller;
+  Animation<Offset> animation;
+  Animation<double> disappear;
+  double opac = 1.0;
+
+  Stream<Tap> tapTriggerStream;
+
+  AnimatedBeat() {
+    tapTriggerStream = AudiotapInput.tapStream?.where((Tap t) => t.stats.peakDelta >= AudiotapInput.threshold);
+    var tapHandler = (Tap t) =>
+      setState(() {
+        if ((widget.beat.millisFromStart - t.timestamp).abs() < 500) {
+          controller?.reset();
+          controller?.stop();
+          opac = 0.0;
+        }
+      });
+    tapTriggerStream?.listen(tapHandler);
+
+  }
+
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+        duration: const Duration(milliseconds: 100000),
+        vsync: this,
+      );
+    animation = Tween(begin: new Offset(5.0, 0.0), end: new Offset(-300.0, 0.0))
+        .animate(controller);
+    controller.forward();
+  }
+
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  Widget build(BuildContext context) {
+    return SlideTransition(
+              position: animation,
+              child: AnimatedOpacity(
+                opacity: opac,
+                duration: Duration(milliseconds: 500),
+                child: RaisedButton(
+                  //icon: new Icon(Icons.add_circle),
+                  child: Text('${AudiotapInput.timer.elapsedMilliseconds} ${widget.beat.millisFromStart}'),
+                  textColor: Colors.white,
+                  color: Colors.red,
+                  //iconSize: 100.0,
+                  onPressed: () {
+                    setState(() {
+                    controller.reset();
+                    controller.stop();
+                    //_controller.forward();
+                  });
+                }),
+              ),
+            );
+  }
+}
+
 class TestScreen extends StatefulWidget {
   @override
   _TestScreenState createState() => _TestScreenState();
@@ -29,7 +109,14 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
   Animation<Offset> animation;
   Animation<double> disappear;
   Stream<Tap> micInStream;
+  Stream<Tap> tapTriggerStream;
+  Stream<Beat> bmapStream;
+  List<Widget> beatWidgets = <Widget> [];
+  int beatWidgetsIndex = 0;
+  Song testSong;
+
   double _threshold = 10.0;
+  String streamExists = "not called";
   bool _delet =false;
 
   AnimationController _controller2;
@@ -106,7 +193,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
       print('local file path is null');
     else
     {
-      await audioPlayer.play(localFilePath, isLocal: true);
+      audioPlayer.play(localFilePath, isLocal: true);
       setState(() => playerState = PlayerState.playing);
     }
   }
@@ -173,7 +260,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
 
   initState() {
     super.initState();
-    {
+    
       _controller = AnimationController(
           duration: const Duration(milliseconds: 200), vsync: this);
 
@@ -183,24 +270,53 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
       _controller.forward();
       _controller2.forward();
 
+      List<Beat> bmap = List<Beat>.generate(94, (i) => Beat(3000 + 438*i /* - (i%2)*250*/, 500));
+      testSong = Song(120.0, bmap);
+      bmapStream = genbmapStream(testSong.beats);
+
+      var beatHandler = (Beat b) => setState(() {beatWidgets.add(AnimatedBeatWidget(beat: b));});
+      bmapStream.listen(beatHandler);
+
+
+      initAudioInputController().then((success) => streamExists = (success) ? "succ" : "fail");
+
       initAudioPlayer();
       playSong();
 
-    }
+    
     _controller.forward();
-
-    initAudioInputController();
   }
 
-  Future<void> initAudioInputController() async {
+  _TestScreenState() {
+    
+
+  }
+
+  Future<bool> initAudioInputController() async {
     micInStream = AudiotapInput.initialize(await SettingsController.getThreshold());
-    var whereStream = AudiotapInput.tapStream?.where((Tap t) => t.stats.peakDelta >= _threshold);
+    tapTriggerStream = AudiotapInput.tapStream?.where((Tap t) => t.stats.peakDelta >= AudiotapInput.threshold);
     var tapHandler = (Tap t) =>
       setState(() {
-        _controller.reset();
-        _controller.forward();
+        //_controller?.reset();
+        //_controller?.forward();
       });
-    whereStream.listen(tapHandler);
+    tapTriggerStream?.listen(tapHandler);
+    return tapTriggerStream != null;
+  }
+
+  Stream<Beat> genbmapStream(List<Beat> bmap) async* {
+    Stopwatch timer = Stopwatch();
+    timer.start();
+    AudiotapInput.timer.reset();
+    AudiotapInput.timer.start();
+    //tapTriggerStream = tapTriggerStream ?? AudiotapInput.tapStream?
+
+    for (Beat b in bmap) {
+      //while (b.millisFromStart - 1500 > timer.elapsedMilliseconds) {
+      await Future.delayed(Duration(milliseconds: b.millisFromStart - timer.elapsedMilliseconds - 1500));
+      //}
+      yield b;
+    }
   }
 
   @override
@@ -211,7 +327,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
         title: title,
         home: Scaffold(
             appBar: AppBar(
-              title: Text(title),
+              title: Text("$streamExists  ${AudiotapInput.threshold}   ${AudiotapInput.timer.elapsedMilliseconds}"),
             ),
 
             bottomSheet:
@@ -220,17 +336,16 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
               textAlign: TextAlign.center,
             ),
 
-
-
-
             body: new Center(
-                child: Row(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget> [
+                    Center(child: Row(children: beatWidgets)),//animationStream()),
+                    Center(child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
 
                 //should music initialization go here?
-
-
                 ScaleTransition(
                     scale: CurvedAnimation(
                         parent: _controller,
@@ -245,8 +360,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
                           onPressed: () {
                             setState(() {
                               //_visible = !_visible;
-                                                          score++;
-
+                              score++;
                               _controller.reset();
                               _controller.forward();
                             });
@@ -273,6 +387,6 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
                           }),
                     ))
               ],
-            ))));
+            ))]))));
   }
 }

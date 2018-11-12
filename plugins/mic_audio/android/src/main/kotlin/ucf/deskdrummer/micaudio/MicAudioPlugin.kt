@@ -40,7 +40,7 @@ private var mEventSink: EventChannel.EventSink? = null
     val potentialSampleRates = intArrayOf(44100, 22050, 16000, 11025, 8000)
     var sampleRate = 0
     val channel = AudioFormat.CHANNEL_IN_MONO
-    val source = MediaRecorder.AudioSource.MIC
+    val source = MediaRecorder.AudioSource.CAMCORDER
     val format = AudioFormat.ENCODING_PCM_8BIT
     var bufferSize = 0
 
@@ -88,6 +88,7 @@ private var mEventSink: EventChannel.EventSink? = null
   override fun onCancel(args: Any?) {
     mReadThreadRunning = false
     mRecorder?.stop()
+    mRecorder?.release()
     mEventSink = null
   }
 

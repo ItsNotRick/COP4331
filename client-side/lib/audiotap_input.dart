@@ -27,17 +27,20 @@ class AudiotapInput {
 
   static Stream<Tap> initialize (double thresh) {
     threshold = thresh;
-    timer.reset();
-    timer.start();
+    //timer.reset();
+    //timer.start();
 
-    MicAudio.initialize().then((init) {
-      initialized = init;
-      if (initialized == true) {
-        rawAudioStream = MicAudio.micAudioStream;
-        _tapStream = mapTimeStamps(rawAudioStream);
-        //MicAudio.micAudioStream.listen(onData);
-      }
-    });
+    //while (initialized != true)
+    //{
+      MicAudio.initialize().then((init) {
+        initialized = init;
+        if (initialized == true) {
+          rawAudioStream = MicAudio.micAudioStream;
+          _tapStream = mapTimeStamps(rawAudioStream);
+          //MicAudio.micAudioStream.listen(onData);
+        }
+      });
+    //}
     return _tapStream;
   }
 
