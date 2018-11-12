@@ -28,6 +28,11 @@ dependencies:
   mic_audio:
     path: ../plugins/mic_audio/
 
+  audioplayer:
+    path: ../plugins/audioplayer/
+  path_provider:
+  http:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -43,6 +48,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - songs/TestSong.mp3
 
   # To add assets to your application, add an assets section, like this:
   # assets:

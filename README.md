@@ -1,14 +1,15 @@
 # COP4331
 Main repository for Processes for Object Oriented Software Development project
-## Sprint #1 Results Graders Look Here
+## Sprint #2 Results Graders Look Here
 1. **Vision Statement** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/vision.md
-2. **User Stories** https://github.com/ItsNotRick/COP4331/issues
-3. **Product Backlog** https://github.com/ItsNotRick/COP4331/issues
-4. **Sprint Backlog** https://github.com/ItsNotRick/COP4331/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Sprint+%231%22
-5. **Burndown Chart** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/Sprint1BurnDown.xlsx
-6. **Design Documents** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/DeskDrummerUML.pdf
-7. **Code** https://github.com/ItsNotRick/COP4331/tree/develop/client-side
-8. **Tests** We don't have them yet 
+2. **Product Backlog** https://github.com/ItsNotRick/COP4331/issues
+3. **Sprint Backlog** https://github.com/ItsNotRick/COP4331/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A%22Sprint+%232%22+
+4. **Burndown Chart** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/Sprint2-burndown.xlsx
+5. **Requirements** 
+6. **Design Documents** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/
+7. **Code** https://github.com/ItsNotRick/COP4331/tree/develop/client-side 
+8. **Tests** Currently described in the done issues. Had some trouble testing the ui but will try the framework's built in testing this week.
+9. **Demonstration** https://github.com/ItsNotRick/COP4331/blob/develop/documentation/sprint2demo.webm
 
 Build/Run Instructions: https://github.com/ItsNotRick/COP4331/blob/develop/documentation/AppHowTo.md
 
