@@ -29,73 +29,91 @@ class Song {
   Song(this.bpm, this.beats);
 }
 
-class AnimatedBeatWidget extends StatefulWidget {
-  final Beat beat;
-
-  const AnimatedBeatWidget({Key, key, this.beat}) : super(key: key);
-
-  AnimatedBeat createState() => AnimatedBeat();
+class BeatWidgetAnimationContainer {
+  Widget widget;
+  Beat beat;
+  AnimationController controller;
+  BeatWidgetAnimationContainer(this.beat, this.controller, Animation animation) {
+  widget = SlideTransition(
+    position: animation,
+      child: AnimatedOpacity(
+        opacity: 1.0,
+          duration: Duration(milliseconds: 500),
+          child: BeatWidget(),
+        ),
+    );
+  }
 }
 
-class AnimatedBeat extends State<AnimatedBeatWidget> with SingleTickerProviderStateMixin{
-  AnimationController controller;
-  Animation<Offset> animation;
-  Animation<double> disappear;
-  double opac = 1.0;
-
+class AnimatedBeats {
+  Song song;
+  _TestScreenState parent;
+  final Function(List<Widget>) updateGameState;
+  List<BeatWidgetAnimationContainer> beatWidgets = [];
   Stream<Tap> tapTriggerStream;
+  Stream<Beat> bmapStream;
 
-  AnimatedBeat() {
+  AnimatedBeats(this.song, this.updateGameState, this.parent) {
     tapTriggerStream = AudiotapInput.tapStream?.where((Tap t) => t.stats.peakDelta >= AudiotapInput.threshold);
-    var tapHandler = (Tap t) =>
-      setState(() {
-        if ((widget.beat.millisFromStart - t.timestamp).abs() < 500) {
-          controller?.reset();
-          controller?.stop();
-          opac = 0.0;
+    tapTriggerStream.listen(tapHandler);
+
+    bmapStream = genbmapStream(song.beats);
+    var beatHandler = (Beat b) {
+      var controller = AnimationController(
+          duration: const Duration(milliseconds: 2000),
+          vsync: parent,
+        );
+      var animationListener = (status) {
+        if (status == AnimationStatus.completed) {
+          beatWidgets.removeAt(0).controller?.dispose();
         }
-      });
-    tapTriggerStream?.listen(tapHandler);
-
+      };
+      var animation = Tween(begin: Offset(4.0, 0.0), end: Offset(-3.0, 0)).animate(controller)..addStatusListener(animationListener);
+      beatWidgets.add(BeatWidgetAnimationContainer(b, controller, animation));
+      controller.forward();
+      updateGameState(beatWidgets.map<Widget>((container) => container.widget).toList());
+    };
+    bmapStream.listen(beatHandler);
   }
 
-  void initState() {
-    super.initState();
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 100000),
-        vsync: this,
-      );
-    animation = Tween(begin: new Offset(5.0, 0.0), end: new Offset(-300.0, 0.0))
-        .animate(controller);
-    controller.forward();
+  void tapHandler(Tap t) {
+    for (int idx in Iterable<int>.generate(beatWidgets.length, (i) => i)) {
+      if ((beatWidgets[idx].beat.millisFromStart - t.timestamp).abs() < 500) {
+        beatWidgets[idx].controller?.reset();
+        beatWidgets.removeAt(idx).controller?.dispose();
+        parent.score += 30;
+        break;
+      }
+    }
+    updateGameState(beatWidgets.map<Widget>((container) => container.widget).toList());
   }
 
-  void dispose() {
-    super.dispose();
-    controller.dispose();
+  Stream<Beat> genbmapStream(List<Beat> bmap) async* {
+    Stopwatch timer = Stopwatch();
+    timer.start();
+    AudiotapInput.timer.reset();
+    AudiotapInput.timer.start();
+    //tapTriggerStream = tapTriggerStream ?? AudiotapInput.tapStream?
+
+    for (Beat b in bmap) {
+      await Future.delayed(Duration(milliseconds: b.millisFromStart - timer.elapsedMilliseconds - 1500));
+      yield b;
+    }
   }
+}
+
+class BeatWidget extends StatelessWidget {
+  final double opac = 1.0;
 
   Widget build(BuildContext context) {
-    return SlideTransition(
-              position: animation,
-              child: AnimatedOpacity(
-                opacity: opac,
-                duration: Duration(milliseconds: 500),
-                child: RaisedButton(
+    return RaisedButton(
                   //icon: new Icon(Icons.add_circle),
-                  child: Text('${AudiotapInput.timer.elapsedMilliseconds} ${widget.beat.millisFromStart}'),
+                  child: Text('asdf'),
                   textColor: Colors.white,
                   color: Colors.red,
+                  onPressed: () {},
                   //iconSize: 100.0,
-                  onPressed: () {
-                    setState(() {
-                    controller.reset();
-                    controller.stop();
-                    //_controller.forward();
-                  });
-                }),
-              ),
-            );
+                );
   }
 }
 
@@ -112,6 +130,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
   Stream<Tap> tapTriggerStream;
   Stream<Beat> bmapStream;
   List<Widget> beatWidgets = <Widget> [];
+  AnimatedBeats animatedBeatsContainer;
   int beatWidgetsIndex = 0;
   Song testSong;
 
@@ -272,11 +291,8 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
 
       List<Beat> bmap = List<Beat>.generate(94, (i) => Beat(3000 + 438*i /* - (i%2)*250*/, 500));
       testSong = Song(120.0, bmap);
-      bmapStream = genbmapStream(testSong.beats);
-
-      var beatHandler = (Beat b) => setState(() {beatWidgets.add(AnimatedBeatWidget(beat: b));});
-      bmapStream.listen(beatHandler);
-
+      
+      animatedBeatsContainer = AnimatedBeats(testSong, (List<Widget> wL) {setState(() => beatWidgets = wL);}, this);
 
       initAudioInputController().then((success) => streamExists = (success) ? "succ" : "fail");
 
@@ -304,21 +320,6 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
     return tapTriggerStream != null;
   }
 
-  Stream<Beat> genbmapStream(List<Beat> bmap) async* {
-    Stopwatch timer = Stopwatch();
-    timer.start();
-    AudiotapInput.timer.reset();
-    AudiotapInput.timer.start();
-    //tapTriggerStream = tapTriggerStream ?? AudiotapInput.tapStream?
-
-    for (Beat b in bmap) {
-      //while (b.millisFromStart - 1500 > timer.elapsedMilliseconds) {
-      await Future.delayed(Duration(milliseconds: b.millisFromStart - timer.elapsedMilliseconds - 1500));
-      //}
-      yield b;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final title = 'test';
@@ -340,6 +341,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget> [
+                    Text("V <- tap when the middle reaches here!"),
                     Center(child: Row(children: beatWidgets)),//animationStream()),
                     Center(child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
