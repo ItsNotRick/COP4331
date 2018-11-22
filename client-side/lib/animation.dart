@@ -68,7 +68,7 @@ class AnimatedBeats {
           beatWidgets.removeAt(0).controller?.dispose();
         }
       };
-      var animation = Tween(begin: Offset(4.0, 0.0), end: Offset(-3.0, 0)).animate(controller)..addStatusListener(animationListener);
+      var animation = Tween(begin: Offset(4.0, 0.0), end: Offset(-3.0, 0.0)).animate(controller)..addStatusListener(animationListener);
       beatWidgets.add(BeatWidgetAnimationContainer(b, controller, animation));
       controller.forward();
       updateGameState(beatWidgets.map<Widget>((container) => container.widget).toList());
@@ -265,7 +265,7 @@ class _TestScreenState extends State<TestScreen> with TickerProviderStateMixin {
       String value = file.path;
       print('The file does exist at: $value');
       setState(() {
-        return localFilePath = file.path;
+        localFilePath = file.path;
       });
     }
     else
