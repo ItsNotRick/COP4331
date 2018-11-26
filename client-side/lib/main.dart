@@ -67,7 +67,7 @@ class MainMenu extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             textColor: Colors.white,
             color: Colors.blue,
-            child: Text('Game'),
+            child: Text('Level Select'),
           ),
           RaisedButton(
             onPressed: () {
@@ -85,7 +85,7 @@ class MainMenu extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             textColor: Colors.white,
             color: Colors.blue,
-            child: Text('test'),
+            child: Text('Play'),
           ),
         ],
       ),
